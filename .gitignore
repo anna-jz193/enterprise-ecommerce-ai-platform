@@ -1,0 +1,23 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+
+# Virtual environments
+.venv/
+venv/
+
+# Secrets and credentials
+.env
+*.pem
+
+# Local data
+data/raw/
+data/processed/
+data/rejected/
+
+# IDE settings
+.vscode/
+.idea/
