@@ -22,12 +22,13 @@ Phase 0 - Project Setup
 
 ## Current Technology Stack
 
+- Python
+- Pandas
 - Git
 - GitHub
 
 ## Planned Technology Stack
 
-- Python
 - SQL
 - AWS
 - Amazon Bedrock
