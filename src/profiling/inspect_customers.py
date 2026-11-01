@@ -4,7 +4,7 @@ import pandas as pd
 file_path = "data/raw/olist_customers_dataset.csv"
 customers = pd.read_csv(file_path)
 
-print(customers.head())
+'show data shape, columns, data types, info'
 print("\n--- SHAPE ---")
 print(customers.shape)
 
@@ -17,6 +17,7 @@ print(customers.dtypes)
 print("\n--- INFO ---")
 customers.info()
 
+'check for customer_unique_id validation - duplicate rows, missing values'
 print("\n--- CUSTOMER_ID VALIDATION ---")
 print("Total rows:", len(customers))
 print("Unique customer_id:", customers["customer_id"].nunique())

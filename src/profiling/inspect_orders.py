@@ -3,8 +3,8 @@ import pandas as pd
 '''
 loading the orders dataset and customers dataset for inspection
 '''
-file_path = "data/raw/olist_orders_dataset.csv"
-orders = pd.read_csv(file_path)
+order_path = "data/raw/olist_orders_dataset.csv"
+orders = pd.read_csv(order_path)
 customers_path = "data/raw/olist_customers_dataset.csv"
 customers = pd.read_csv(customers_path)
 
@@ -14,7 +14,7 @@ show data shape, columns, data types, info
 and validation of order_id and customer_id,
 duplicate rows, missing values
 '''
-print(orders.head())
+
 print("\n--- SHAPE ---")
 print(orders.shape)
 
@@ -51,14 +51,14 @@ print(customer_fk_exists.value_counts())
 
 'check for invalid customer foreign keys in the orders dataset'
 invalid_customer_fk = (~customer_fk_exists).sum()
-print("Invalid customer foreign keys:")
-print(invalid_customer_fk)
+print("Invalid customer foreign keys:", invalid_customer_fk)
 
 'show order status counts in the orders dataset'
 print("\n--- ORDER STATUS COUNTS ---")
 print(orders["order_status"].value_counts())
 
 'check for missing delivery dates in the orders dataset'
+'add column (delivery_date_missing) to indicate if delivery date is missing'
 orders["delivery_date_missing"] = (
     orders["order_delivered_customer_date"].isna()
 )
@@ -83,8 +83,8 @@ delivered_missing_date = orders[
 
 print("\n--- DELIVERED ORDERS WITH MISSING DELIVERY DATE ---")
 print("Count:", len(delivered_missing_date))
-print("\n--- DELIVERED ORDERS WITH MISSING DELIVERY DATE ---")
 
+print("\n--- DELIVERED ORDERS WITH MISSING DELIVERY DATE ---")
 print(
     delivered_missing_date[
         [
