@@ -144,3 +144,34 @@ Comparison uses rounded integer cents with a 1-cent tolerance.
 - All three use credit-card installments; the cause remains unconfirmed.
 - Recorded payments are not sufficient to establish net revenue
   or confirm refunds and settlement.
+
+
+  ## Products Profiling
+
+### Structure and keys
+- Grain: one product per row.
+- Rows and distinct product IDs: 32,951.
+- No missing or duplicate product IDs; no fully duplicated rows.
+- All Order Items product IDs exist in Products.
+- Product join passed many_to_one validation.
+- Joined item row count remains 112,650.
+- 73 distinct non-null product categories.
+
+### Missing attributes and impact
+- 610 products jointly lack category, name length,
+  description length, and photo count.
+- Missing categories affect 1,603 item records across 1,451 orders.
+- 2 products jointly lack weight and all three dimensions,
+  affecting 18 item records.
+- 4 products have zero weight, affecting 8 item records.
+- No negative weights or non-positive recorded dimensions.
+- Overlap between issue groups has not been checked.
+
+### Handling decisions
+- Retain all products and original attribute values.
+- Add explicit quality flags.
+- Use unknown in a separate reporting-category field
+  while preserving the original null category.
+- Do not replace missing physical measurements with zero.
+- Zero weights remain flagged for investigation.
+- Existing fields contain name/description lengths, not their text.

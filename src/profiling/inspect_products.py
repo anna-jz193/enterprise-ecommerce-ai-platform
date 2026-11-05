@@ -167,3 +167,77 @@ print(
     "Missing reporting categories =",
     products_clean["category_for_reporting"].isna().sum(),
 )
+
+
+translations = pd.read_csv(
+    PROJECT_ROOT / "data" / "raw"
+    / "product_category_name_translation.csv",
+    dtype="string",
+)
+
+print("\nTranslation sample:")
+print(translations.head().to_string(index=False))
+
+print("\nTranslation rows =", len(translations))
+
+print("\nMissing translation values:")
+print(translations.isna().sum())
+
+print("\nDuplicate source categories =",
+      translations["product_category_name"].duplicated().sum())
+
+# check for missing source categories in the translation table
+if translations["product_category_name"].isna().any():
+    raise ValueError("Translation table contains missing source categories.")
+
+products_en = products_clean.merge(
+    translations,
+    on="product_category_name",
+    how="left",
+    validate="many_to_one",
+    indicator="translation_match",
+)
+
+# check for missing translations in the products dataset
+unmapped = (
+    products_en["product_category_name"].notna()
+    & products_en["translation_match"].eq("left_only")
+)
+
+print("\nProducts after translation join =", len(products_en))
+
+print("\nProducts with missing source category =",
+      products_en["is_category_missing"].sum())
+
+print("Products with unmapped source category =", unmapped.sum())
+
+print("\nUnmapped categories by product count:")
+print(
+    products_en.loc[unmapped, "product_category_name"]
+    .value_counts()
+)
+
+
+products_en["is_translation_unmapped"] = unmapped
+
+# english first, then fallback to original category, and finally "unknown" if both are missing
+products_en["category_for_reporting"] = (
+    products_en["product_category_name_english"]
+    .fillna(products_en["product_category_name"])
+    .fillna("unknown")
+)
+
+print("\nReporting category checks:")
+print("Products retained =", len(products_en))
+print("Missing reporting categories =",
+      products_en["category_for_reporting"].isna().sum())
+print("Unmapped translation products =",
+      products_en["is_translation_unmapped"].sum())
+
+print("\nFallback categories:")
+print(
+    products_en.loc[
+        products_en["is_translation_unmapped"],
+        ["product_category_name", "category_for_reporting"],
+    ].drop_duplicates().to_string(index=False)
+)
