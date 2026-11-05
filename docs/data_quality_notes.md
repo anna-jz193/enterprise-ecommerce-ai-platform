@@ -91,3 +91,56 @@ If `order_status == "delivered"`, then `order_delivered_customer_date` should no
 Observed violations: 8.
 
 Treatment: Flag for investigation rather than automatically dropping or imputing the records.
+
+
+## Payments Profiling and Reconciliation
+
+### Structure and keys
+- Grain: one payment record within an order.
+- Rows: 103,886; distinct orders: 99,440.
+- No missing values or fully duplicated rows.
+- (order_id, payment_sequential) is unique and non-null.
+- All payment order_id values exist in Orders.
+- payment_value is not multiplied by payment_installments.
+
+### Special records
+- No negative payment values.
+- 9 zero-value records across 8 orders:
+  - 6 voucher records across 5 orders with positive payment totals.
+  - 3 not_defined records across 3 canceled orders with zero totals.
+- 2 credit-card records have zero installments and positive amounts.
+- 1 delivered order has no payment record:
+  bfbd0f9bdef84302105ad712db648a6c
+- Retain original values and flag these cases.
+- Missing payment amounts remain null.
+
+### Aggregation validation
+- Payments aggregated by order_id before joining to Orders.
+- Result: 99,441 rows and unique orders.
+- Payment total before and after: 16,008,872.12.
+
+### Order-level reconciliation
+Difference = payment_total - (items_total + freight_total).
+Comparison uses rounded integer cents with a 1-cent tolerance.
+
+- Comparable orders: 98,665.
+- Within tolerance: 98,362.
+- Not comparable: 776
+  - 775 without item records.
+  - 1 without payment records.
+- Mismatches: 303
+  - Payment higher: 264; payment lower: 39.
+  - Absolute difference:
+    - 2–5 cents: 43
+    - 6–100 cents: 11
+    - 101–1,000 cents: 151
+    - Above 1,000 cents: 98
+  - Statuses: delivered 299, canceled 2, shipped 2.
+
+### Decisions and limitations
+- Retain mismatches and original monetary values.
+- Do not increase tolerance merely to improve the match rate.
+- Raw records support the three largest observed differences.
+- All three use credit-card installments; the cause remains unconfirmed.
+- Recorded payments are not sufficient to establish net revenue
+  or confirm refunds and settlement.
