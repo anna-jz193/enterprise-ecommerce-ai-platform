@@ -14,13 +14,51 @@ One row represents one customer record associated with an order.
 - No exact duplicate rows
 
 ### Interpretation
-`customer_id` uniquely identifies each customer record and is treated as the primary key candidate.
+`customer_id` (Primary Key) uniquely identifies each customer record and is treated as the primary key candidate.
 
 `customer_unique_id` represents the persistent customer identity. A single real customer may therefore be associated with multiple customer records and orders.
 
 ---
 
 ## Orders
+
+## Order Items Profiling
+
+### Structure and keys
+- Grain: one order-item record per row.
+- Rows: 112,650.
+- Distinct orders: 98,666.
+- No missing values or fully duplicated rows.
+- (order_id, order_item_id) is unique and non-null.
+- All order_id values exist in Orders.
+- Product and seller foreign keys have not yet been checked.
+
+### Orders without items
+775 orders have no matching item records:
+- unavailable: 603
+- canceled: 164
+- created: 5
+- invoiced: 2
+- shipped: 1
+
+Keep these orders and flag them with has_items = False.
+Their missing item amounts remain null.
+Statuses suggest possible explanations but do not establish causes.
+Prioritize investigation of invoiced and shipped orders without items.
+
+### Numeric checks
+- Prices are positive; range: 0.85–6,735.00.
+- Freight values are non-negative; range: 0–409.68.
+- 383 item records have zero freight; retained pending clarification.
+- High values are retained pending further investigation.
+
+### Aggregation and join validation
+Items were aggregated by order_id before a left join to Orders.
+- Result: 99,441 rows and 99,441 unique orders.
+- Join validation: one_to_one passed.
+- Item price total before and after: 13,591,643.70.
+- Freight total before and after: 2,251,909.54.
+- Item totals represent recorded merchandise amounts, not confirmed revenue.
 
 ### Grain
 One row represents one order.
